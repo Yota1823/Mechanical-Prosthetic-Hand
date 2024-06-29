@@ -1,19 +1,51 @@
 #!/usr/bin/env python3
-#import RPi.GPIO as GPIO 
-import pigpio
-import time 
+#import RPi.GPIO as
 
-pi = pigpio.pi()
-servo_pin = 17
 
-pi.set_servo_pulsewidth(servo_pin,1500)
-time.sleep(1)
+from gpiozero import Servo
+from time import sleep
+import sys
+from gpiozero.pins.pigpio import PiGPIOFactory
 
-pi.set_servo_pulsewidth(servo_pin,2000)
-time.sleep(1)
+factory = PiGPIOFactory()
 
-pi.set_servo_pulsewidth(servo_pin,2000)
-pi.stop()
+# Setup your servo motor
+servo_pin_1 = Servo(18,pin_factory = factory)
+servo_pin_2 = Servo(17,pin_factory = factory)
+servo_pin_3 = Servo(23,pin_factory = factory)
+
+# Adjust this to your GPIO pin connected to the servo
+#servo = Servo(servo_pin)
+
+def simulate_sensor_trigger():
+    """Function to simulate sensor trigger via keyboard input."""
+    user_input = input("Press Enter to simulate the sensor being triggered (type 'q' and Enter to quit): ")
+    if user_input.lower() == 'q':
+        return False
+    return True
+
+def grab_object():
+    """Function to rotate servo to grab object."""
+    print("Grabbing object...")
+    servo_pin_1.min()  # Adjust as necessary for your servo's grabbing position
+    servo_pin_2.min()
+    servo_pin_3.min()
+    sleep(2)  # Adjust timing as necessary
+    print("Releasing object...")
+    servo_pin_1.max()  # Adjust to return servo to starting position
+    servo_pin_2.max()
+    servo_pin_3.max()
+    sleep(2)  # Adjust timing as necessary
+
+print("Press Enter to simulate the sensor being triggered.")
+print("Starting simulation. Type 'q' and Enter to quit.")
+while True:
+    if simulate_sensor_trigger():
+        grab_object()
+    else:
+        print("Quitting simulation.")
+        sys.exit(0)
+
 
 '''
 # Setup the GPIO pin for the servo 
