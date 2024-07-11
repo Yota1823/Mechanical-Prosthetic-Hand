@@ -13,11 +13,11 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 
 factory = PiGPIOFactory()
 
-servo_pin_1 = Servo(17,pin_factory = factory)
+servo_pin_1 = Servo(12,pin_factory = factory)
 servo_pin_2 = Servo(18,pin_factory = factory)
-servo_pin_3 = Servo(23,pin_factory = factory)
-servo_pin_4 = Servo(4,pin_factory = factory)
-servo_pin_5 = Servo(22,pin_factory = factory)
+servo_pin_3 = Servo(13,pin_factory = factory)
+servo_pin_4 = Servo(19,pin_factory = factory)
+servo_pin_5 = Servo(20,pin_factory = factory)
 
 
 def grab_object():

@@ -49,10 +49,10 @@ try:
                 pwm.ChangeDutyCycle(7.5)  # Duty cycle for 90 degrees
             time.sleep(1)
 
-            # Move all motors to 180 degrees
-            for pwm in pwm_instances:
-                pwm.ChangeDutyCycle(12.5)  # Duty cycle for 180 degrees
-            time.sleep(1)
+#             # Move all motors to 180 degrees
+#             for pwm in pwm_instances:
+#                 pwm.ChangeDutyCycle(12.5)  # Duty cycle for 180 degrees
+#             time.sleep(1)
 
 except KeyboardInterrupt:
     for pwm in pwm_instances:

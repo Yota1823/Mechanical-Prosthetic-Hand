@@ -1,0 +1,12 @@
+data:
+  raw_data_path: '../data/raw/muscle_data_raw.csv'
+  processed_data_path: '../data/processed/muscle_data.csv'
+
+model:
+  save_path: '../models/servo_model.pkl'
+  test_size: 0.2
+  random_state: 42
+
+servo:
+  pins: [12, 13, 18, 19, 20]
+  frequency: 50
