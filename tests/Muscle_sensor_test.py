@@ -14,40 +14,58 @@ pi = pigpio.pi()
 # I2C setup
 i2c = busio.I2C(board.SCL, board.SDA)
 
-# Create an ADS1115 instance
-ads = ADS.ADS1115(i2c)
-chan = AnalogIn(ads, ADS.P0)  # Assuming muscle sensor is connected to A0
+# Create ADS1115 instance for muscle sensor
+ads_muscle = ADS.ADS1115(i2c, address=0x48)  # Default I2C address
+chan_muscle = AnalogIn(ads_muscle, ADS.P0)   # Muscle sensor connected to A0
 
-# Initialize the current servo index
-current_servo_index = 0
+# Initialize counters and timers
+muscle_drop_count = 0
+muscle_drop_start_time = None
 
 def read_muscle_sensor():
-    # Read the ADC value from the specified channel
-    return chan.voltage
+    return chan_muscle.voltage
 
-def map_muscle_to_servo(voltage):
-    # Map the muscle voltage (0-3.3V) to a servo pulse width (500-2500 microseconds)
-    pulse_width = int((voltage / 3.3) * 2000 + 500)
-    return pulse_width
+def close_fingers():
+    for pin in servo_pins:
+        pi.set_servo_pulsewidth(pin, 500)  # Move servos to 0 degrees (closed position)
+    print("Fingers closed")
+
+def open_fingers():
+    for pin in servo_pins:
+        pi.set_servo_pulsewidth(pin, 1500)  # Move servos to neutral position (open)
+    print("Fingers opened")
 
 try:
+    # Open fingers at the start
+    open_fingers()
+    time.sleep(2)  # Give the servos time to move to the initial position
+
     while True:
-        # Read the muscle sensor voltage
+        # Read muscle sensor data
         muscle_voltage = read_muscle_sensor()
-        print("Muscle Sensor Voltage: ", muscle_voltage)
+        print(f"Muscle Sensor Voltage: {muscle_voltage}")
 
-        # Map the muscle voltage to a servo pulse width
-        pulse_width = map_muscle_to_servo(muscle_voltage)
+        # Check muscle sensor condition
+        if muscle_voltage < 0.1:
+            if muscle_drop_start_time is None:
+                muscle_drop_start_time = time.time()
+            elif time.time() - muscle_drop_start_time <= 5:
+                muscle_drop_count += 1
+                muscle_drop_start_time = None
 
-        # Set the current servo position
-        pi.set_servo_pulsewidth(servo_pins[current_servo_index], pulse_width)
+        # Check if conditions are met to close fingers
+        if muscle_drop_count >= 2:
+            print("Voltage dropped below 0.1V, closing fingers")
+            close_fingers()
+            muscle_drop_count = 0
+            muscle_drop_start_time = None
 
-        # Check if the muscle voltage crosses a threshold to switch to the next servo
-        if muscle_voltage < 1.0:  # Example threshold
-            current_servo_index = (current_servo_index + 1) % len(servo_pins)
-            time.sleep(1)  # Small delay to prevent rapid switching
+        # Check if conditions are met to open fingers
+        if muscle_voltage > 4.5:
+            print("Voltage above 4.5V, opening fingers")
+            open_fingers()
 
-        time.sleep(0.1)  # Small delay to prevent overloading the servo
+        time.sleep(0.1)  # Small delay to prevent overloading the system
 
 except KeyboardInterrupt:
     pass
