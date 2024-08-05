@@ -20,7 +20,7 @@ ads_pressure = ADS.ADS1115(i2c, address=0x49)  # Pressure sensor ADC
 chan_pressure = AnalogIn(ads_pressure, ADS.P0)  # Pressure sensor connected to A0
 
 # Parameters
-PRESSURE_THRESHOLD = 1.0  # Adjusted threshold
+PRESSURE_THRESHOLD = 0.7  # Adjust threshold voltage depending on which power supply using for pi boost
 HOLD_DURATION = 1  # seconds
 SMOOTHING_WINDOW = 10  # Number of readings to average
 
